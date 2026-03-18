@@ -3,254 +3,510 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herramientas y demás xTFEXx</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Proyectos xTFEXx</title>
     
+    <link rel="icon" href="/íconos/favicon.png" type="image/png">
+
     <style>
-        /* Variables de colores oscuros */
+        /* Variables de colores futuristas */
         :root {
-            --bg-page: #0b1121;
-            --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --text-desc: #94a3b8;
-            --accent-blue: #38bdf8;
-            --accent-hover: #7dd3fc;
+            --bg-color: #0b0c10;
+            --neon-blue: #45f3ff;
+            --neon-purple: #b026ff;
+            --neon-pink: #ff2a85;
+            --neon-cyan: #00fa9a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            padding: 20px; 
-            background-color: var(--bg-page); 
-            color: var(--text-main);
+        /* Ocultar las barras deslizantes pero permitir scroll en todos los navegadores */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE y Edge */
+        }
+        
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari y Opera */
+            width: 0;
+            height: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
+            overflow-x: hidden;
+            
+            /* Animación global de entrada */
+            animation: systemBoot 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: scale(0.95);
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @keyframes systemBoot {
+            0% { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        /* --- LUCES DE FONDO DINÁMICAS (GPU OPTIMIZED) --- */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+            will-change: transform; 
+        }
+
+        .orb-1 { width: 20vw; height: 20vw; background: var(--neon-purple); top: -5%; left: -5%; animation: float1 25s infinite linear alternate; }
+        .orb-2 { width: 18vw; height: 18vw; background: var(--neon-blue); bottom: 10%; right: -5%; animation: float2 30s infinite linear alternate-reverse; }
+        .orb-3 { width: 15vw; height: 15vw; background: var(--neon-pink); top: 40%; left: 80%; animation: float3 22s infinite linear alternate; }
+        .orb-4 { width: 12vw; height: 12vw; background: var(--neon-cyan); top: 80%; left: 10%; animation: float4 28s infinite linear alternate-reverse; }
+
+        @keyframes float1 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(90vw, 80vh, 0) scale(0.8); } }
+        @keyframes float2 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-80vw, -90vh, 0) scale(1.1); } }
+        @keyframes float3 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-90vw, 40vh, 0) scale(1); } }
+        @keyframes float4 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(30vw, -80vh, 0) scale(1.2); } }
+
+        header {
+            margin-top: 50px;
+            text-align: center;
+            width: 100%;
         }
 
         h1 {
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        /* Contenedor del buscador */
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
+            font-size: 3rem;
+            text-transform: none; 
+            letter-spacing: 5px;
             margin-bottom: 30px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Animación exclusiva y súper fluida para el título */
+            opacity: 0;
+            animation: titleSmoothIn 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
         }
 
-        .search-box {
-            width: 100%;
-            padding: 14px 20px 14px 45px;
-            border-radius: 30px;
-            border: 2px solid #1e293b;
-            background: #1e293b;
-            color: #f8fafc;
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        @keyframes titleSmoothIn {
+            0% { opacity: 0; transform: translateY(-30px); filter: blur(8px); text-shadow: none; }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); text-shadow: 0 0 20px rgba(176, 38, 255, 0.4); }
         }
 
-        .search-box:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        /* ----- BARRA DE BÚSQUEDA CORREGIDA (Cierre sin achicarse) ----- */
+        .search-wrapper {
+            position: relative;
+            margin: 0 auto;
+            width: 50px;
+            height: 50px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(69, 243, 255, 0.1);
+            
+            /* Animación suave para cuando se CIERRA (Evita que el círculo se hunda) */
+            transition: width 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .search-box::placeholder {
-            color: #64748b;
+        .search-wrapper.active {
+            width: 300px;
+            max-width: 90vw;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 25px rgba(69, 243, 255, 0.3);
+            
+            /* Animación con rebote elástico solo para cuando se ABRE */
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-        }
-
-        /* Contenedor tipo grilla para los cuadros */
-        .repo-list { 
-            list-style-type: none; 
-            padding: 0; 
-            width: 100%;
-            max-width: 1000px; 
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .repo-item { 
-            background: var(--bg-card); 
-            padding: 20px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border-top: 3px solid var(--accent-blue);
+            min-width: 50px;
+            height: 50px;
             display: flex;
-            flex-direction: column;
-            transition: transform 0.2s;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 2;
         }
 
-        .repo-item:hover {
-            transform: translateY(-3px);
+        .search-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--neon-blue);
+            transition: transform 0.3s;
         }
 
-        .repo-item a { 
-            text-decoration: none; 
-            color: var(--accent-blue); 
-            font-weight: 700; 
-            font-size: 1.2rem; 
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
+        .search-wrapper:hover .search-icon svg {
+            transform: scale(1.1);
         }
 
-        .repo-item a:hover { 
-            color: var(--accent-hover);
+        .search-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 1rem;
+            padding-right: 40px; 
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .repo-desc { 
-            margin: 12px 0 0 0; 
-            color: var(--text-desc); 
-            font-size: 0.95rem; 
-            line-height: 1.5;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            flex-grow: 1;
+        .search-wrapper.active .search-input {
+            opacity: 1;
+            transition-delay: 0.1s;
         }
 
-        .badge { 
-            display: inline-block; 
-            background: rgba(56, 189, 248, 0.15); 
-            color: var(--accent-blue); 
-            font-size: 0.75rem; 
-            font-weight: 600;
-            padding: 4px 10px; 
-            border-radius: 12px; 
-            margin-bottom: 12px;
-            width: max-content;
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
         }
 
-        #mensaje-estado {
-            color: #94a3b8;
-            font-size: 1.1rem;
-            margin-top: 20px;
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            width: 30px; 
+            height: 30px;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.5);
+            z-index: 5;
+        }
+
+        .clear-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .clear-btn:hover {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        /* Contenedor de Proyectos */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1200px;
+            padding: 40px 0;
+        }
+
+        /* Estilo de los cuadros Semitranslúcidos (Glassmorphism) */
+        .repo-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue));
+            transition: left 0.5s;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.2);
+            border-color: rgba(176, 38, 255, 0.4);
+        }
+
+        .repo-card:hover::before {
+            left: 100%;
+        }
+
+        /* Etiquetas Activa/Inactiva */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+        }
+
+        .active-page { color: var(--neon-cyan); border: 1px solid rgba(0, 250, 154, 0.3); }
+        .inactive-page { color: #888; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .active-page .status-dot { background-color: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); animation: pulseDot 2s infinite alternate; }
+        .inactive-page .status-dot { background-color: #555; }
+
+        @keyframes pulseDot { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .repo-title { font-size: 1.4rem; margin: 0 0 15px 0; }
+        .repo-title a { color: var(--neon-blue); text-decoration: none; transition: color 0.3s; text-shadow: 0 0 8px rgba(69, 243, 255, 0.4); }
+        .repo-title a:hover { color: var(--neon-purple); text-shadow: 0 0 12px rgba(176, 38, 255, 0.6); }
+        .repo-desc { color: #b3b3b3; font-size: 0.95rem; line-height: 1.5; margin-bottom: 10px; }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* Mensajes de Búsqueda */
+        .empty-message {
+            text-align: center;
+            width: 100%;
+            grid-column: 1 / -1;
+            padding: 20px 0;
+            display: none;
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        .empty-message h2 { color: var(--neon-pink); font-size: 1.8rem; text-shadow: 0 0 15px rgba(255, 42, 133, 0.5); margin: 0 0 10px 0; }
+        .empty-message p { color: #aaa; font-size: 1rem; }
+
+        .section-title {
+            width: 90%;
+            max-width: 1200px;
+            color: var(--neon-cyan);
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(0, 250, 154, 0.3);
+            padding-bottom: 10px;
+            margin-top: -20px;
+            margin-bottom: -20px;
+            display: none;
+            animation: fadeInUp 0.5s forwards;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Spinner de carga */
+        .loader {
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid var(--neon-purple);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Adaptabilidad 100% Móvil */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; letter-spacing: 2px; }
+            header { margin-top: 30px; }
+            .container { grid-template-columns: 1fr; width: 85%; }
+            .search-wrapper.active { width: 100%; max-width: 85vw; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Herramientas y demás xTFEXx</h1>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="bg-orb orb-4"></div>
 
-    <div class="search-container">
-        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" id="buscador" class="search-box" placeholder="Buscar página por nombre...">
+    <header>
+        <h1>Proyectos xTFEXx</h1>
+        
+        <div class="search-wrapper" id="search-wrapper">
+            <div class="search-icon" id="search-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </div>
+            <input type="text" class="search-input" id="search-input" placeholder="Buscar proyecto..." autocomplete="off">
+            <span class="clear-btn" id="clear-btn" title="Borrar">&times;</span>
+        </div>
+    </header>
+
+    <div id="loader" class="loader"></div>
+    
+    <div class="container" id="repos-container"></div>
+    <div class="empty-message" id="empty-message">
+        <h2>No se encontraron proyectos</h2>
+        <p>Intenta con otras palabras clave.</p>
     </div>
-
-    <div id="mensaje-estado">Buscando páginas publicadas...</div>
-    <ul id="lista-repos" class="repo-list"></ul>
+    <h3 class="section-title" id="fallback-title">Proyectos similares</h3>
+    <div class="container" id="fallback-container"></div>
 
     <script>
-        const usuarioGitHub = 'xtfexx'; 
-        const urlAPI = `https://api.github.com/users/${usuarioGitHub}/repos?per_page=100`;
+        const username = 'xTFEXx';
+        const apiUrl = `https://api.github.com/users/${username}/repos`;
         
-        let reposActivos = []; // Array para guardar las páginas y poder filtrarlas
+        const loader = document.getElementById('loader');
+        const searchWrapper = document.getElementById('search-wrapper');
+        const searchIcon = document.getElementById('search-icon');
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-btn');
+        
+        const mainContainer = document.getElementById('repos-container');
+        const emptyMessage = document.getElementById('empty-message');
+        const fallbackTitle = document.getElementById('fallback-title');
+        const fallbackContainer = document.getElementById('fallback-container');
 
-        // Función para renderizar los cuadros en la pantalla
-        function mostrarRepositorios(repos) {
-            const contenedorLista = document.getElementById('lista-repos');
-            const mensajeEstado = document.getElementById('mensaje-estado');
-            
-            contenedorLista.innerHTML = ''; 
+        let allReposData = [];
 
-            if (repos.length === 0) {
-                mensajeEstado.style.display = 'block';
-                mensajeEstado.textContent = 'No se encontraron páginas con ese nombre.';
-                return;
+        searchIcon.addEventListener('click', () => {
+            searchWrapper.classList.toggle('active');
+            if(searchWrapper.classList.contains('active')){
+                searchInput.focus();
+            } else {
+                searchInput.value = '';
+                searchInput.blur();
+                performSearch();
             }
+        });
 
-            mensajeEstado.style.display = 'none';
+        function cleanName(rawName) {
+            let name = rawName;
+            if (name.includes('-')) {
+                name = name.substring(name.indexOf('-') + 1);
+                name = name.replace(/-/g, ' ');
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+            }
+            return name;
+        }
 
-            repos.forEach(repo => {
-                const elementoLi = document.createElement('li');
-                elementoLi.className = 'repo-item';
+        function createCardHTML(repo) {
+            const displayName = cleanName(repo.name);
+            const pageUrl = `https://${username}.github.io/${repo.name}/`;
+            const isPageActive = repo.has_pages;
+            
+            const badgeClass = isPageActive ? 'active-page' : 'inactive-page';
+            const badgeText = isPageActive ? 'Activa' : 'Inactiva';
+            const desc = repo.description ? repo.description : 'Sin descripción asignada.';
 
-                const etiqueta = document.createElement('span');
-                etiqueta.className = 'badge';
-                etiqueta.textContent = 'En vivo';
-                elementoLi.appendChild(etiqueta);
+            return `
+                <div class="status-badge ${badgeClass}">
+                    <span class="status-dot"></span>
+                    ${badgeText}
+                </div>
+                <h2 class="repo-title">
+                    <a href="${pageUrl}" target="_blank" rel="noopener noreferrer">${displayName}</a>
+                </h2>
+                <p class="repo-desc">${desc}</p>
+            `;
+        }
 
-                const enlace = document.createElement('a');
-                let nombreMostrar = repo.name; // Usamos el nombre exacto de la ruta por defecto
-                
-                // Excepción para la página principal
-                if (repo.name.toLowerCase() === `${usuarioGitHub.toLowerCase()}.github.io`) {
-                    enlace.href = `https://${usuarioGitHub}.github.io/`;
-                    nombreMostrar = "Página Principal";
-                } else {
-                    enlace.href = `https://${usuarioGitHub}.github.io/${repo.name}/`;
-                }
-                
-                enlace.textContent = nombreMostrar;
-                enlace.target = '_blank'; 
-
-                const descripcion = document.createElement('p');
-                descripcion.className = 'repo-desc';
-                descripcion.textContent = repo.description ? repo.description : 'Herramienta web activa.';
-
-                elementoLi.appendChild(enlace);
-                elementoLi.appendChild(descripcion);
-                contenedorLista.appendChild(elementoLi);
+        function renderCards(repos, container) {
+            container.innerHTML = '';
+            repos.forEach((repo, index) => {
+                const card = document.createElement('div');
+                card.className = 'repo-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.innerHTML = createCardHTML(repo);
+                container.appendChild(card);
             });
         }
 
-        // Obtener datos de la API
-        fetch(urlAPI)
-            .then(respuesta => respuesta.json())
-            .then(datos => {
-                const mensajeEstado = document.getElementById('mensaje-estado');
-                
-                // Filtramos: solo proyectos que no sean forks y tengan Pages activado
-                reposActivos = datos.filter(repo => !repo.fork && repo.has_pages);
-
-                // Ordenamos alfabéticamente (A-Z)
-                reposActivos.sort((a, b) => a.name.localeCompare(b.name));
-
-                if (reposActivos.length === 0) {
-                    mensajeEstado.textContent = 'Aún no se encontraron páginas activas en esta cuenta.';
-                } else {
-                    mostrarRepositorios(reposActivos);
-                }
-            })
-            .catch(error => {
-                console.error('Error al cargar:', error);
-                document.getElementById('mensaje-estado').innerHTML = '<span style="color: #ef4444;">Error de conexión con GitHub.</span>';
-            });
-
-        // Lógica del buscador en tiempo real
-        document.getElementById('buscador').addEventListener('input', (e) => {
-            const termino = e.target.value.toLowerCase();
+        function performSearch() {
+            const term = searchInput.value.toLowerCase().trim();
             
-            // Filtra si el nombre del repositorio incluye lo que escribiste
-            const filtrados = reposActivos.filter(repo => {
-                // Si es la principal, permitimos buscarla también por "página principal"
-                if (repo.name.toLowerCase() === `${usuarioGitHub.toLowerCase()}.github.io`) {
-                    return "página principal".includes(termino) || repo.name.toLowerCase().includes(termino);
-                }
-                return repo.name.toLowerCase().includes(termino);
+            if (term.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+
+            if (term === '') {
+                mainContainer.style.display = 'grid';
+                emptyMessage.style.display = 'none';
+                fallbackTitle.style.display = 'none';
+                fallbackContainer.innerHTML = '';
+                renderCards(allReposData, mainContainer);
+                return;
+            }
+
+            const titleMatches = allReposData.filter(repo => {
+                const title = cleanName(repo.name).toLowerCase();
+                return title.includes(term);
             });
 
-            mostrarRepositorios(filtrados);
-        });
-    </script>
+            if (titleMatches.length > 0) {
+                mainContainer.style.display = 'grid';
+                emptyMessage.style.display = 'none';
+                fallbackTitle.style.display = 'none';
+                fallbackContainer.innerHTML = '';
+                renderCards(titleMatches, mainContainer);
+            } else {
+                mainContainer.style.display = 'none';
+                emptyMessage.style.display = 'block';
+                fallbackTitle.style.display = 'block';
 
+                const descMatches = allReposData.filter(repo => {
+                    const desc = (repo.description || '').toLowerCase();
+                    return desc.includes(term);
+                });
+
+                if (descMatches.length > 0) {
+                    fallbackTitle.textContent = "Proyectos similares";
+                    renderCards(descMatches, fallbackContainer);
+                } else {
+                    fallbackTitle.textContent = "Otros proyectos";
+                    const randomRepos = [...allReposData].sort(() => 0.5 - Math.random()).slice(0, 3);
+                    renderCards(randomRepos, fallbackContainer);
+                }
+            }
+        }
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.focus();
+            performSearch();
+        });
+
+        searchInput.addEventListener('input', performSearch);
+
+        async function fetchRepos() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Error al cargar la API de GitHub');
+                allReposData = await response.json();
+
+                loader.style.display = 'none';
+                renderCards(allReposData, mainContainer);
+
+            } catch (error) {
+                console.error('Error:', error);
+                loader.style.display = 'none';
+                mainContainer.innerHTML = `<p style="color: #ff4545; text-align: center; width: 100%;">Error al establecer conexión con los repositorios.</p>`;
+            }
+        }
+
+        fetchRepos();
+    </script>
 </body>
 </html>
