@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <title>Proyectos xTFEXx</title>
     
-    <link rel="icon" href="./íconos/favicon.png" type="image/png">
+    <link rel="icon" href="./íconos/favicon.png?v=1" type="image/png">
 
     <style>
         /* Variables de colores futuristas */
@@ -490,9 +495,11 @@
 
         searchInput.addEventListener('input', performSearch);
 
+        // Fetch API con configuración para evitar caché
         async function fetchRepos() {
             try {
-                const response = await fetch(apiUrl);
+                // { cache: 'no-store' } fuerza al navegador a traer datos frescos de GitHub
+                const response = await fetch(apiUrl, { cache: 'no-store' });
                 if (!response.ok) throw new Error('Error al cargar la API de GitHub');
                 allReposData = await response.json();
 
