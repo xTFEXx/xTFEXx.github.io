@@ -10,7 +10,7 @@
 
     <title>Proyectos xTFEXx</title>
     
-    <link rel="icon" href="./iconos/favicon.png?v=1" type="image/png">
+    <link rel="icon" href="./íconos/favicon.png?v=1" type="image/png">
 
     <style>
         /* Variables de colores futuristas */
@@ -48,10 +48,9 @@
             align-items: center;
             overflow-x: hidden;
             
-            /* Animación global de entrada */
-            animation: systemBoot 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            /* Animación global de entrada (Ajustada: sin animación de movimiento al entrar) */
+            animation: systemBoot 1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
             opacity: 0;
-            transform: scale(0.95);
 
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -60,30 +59,44 @@
         }
 
         @keyframes systemBoot {
-            0% { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(10px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
-        /* --- LUCES DE FONDO DINÁMICAS (GPU OPTIMIZED) --- */
+        /* --- BOLAS SÓLIDAS EN EL FONDO --- */
         .bg-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(70px);
-            z-index: -1;
+            z-index: -2; 
             pointer-events: none;
-            opacity: 0.6;
             will-change: transform; 
         }
 
-        .orb-1 { width: 20vw; height: 20vw; background: var(--neon-purple); top: -5%; left: -5%; animation: float1 25s infinite linear alternate; }
-        .orb-2 { width: 18vw; height: 18vw; background: var(--neon-blue); bottom: 10%; right: -5%; animation: float2 30s infinite linear alternate-reverse; }
-        .orb-3 { width: 15vw; height: 15vw; background: var(--neon-pink); top: 40%; left: 80%; animation: float3 22s infinite linear alternate; }
-        .orb-4 { width: 12vw; height: 12vw; background: var(--neon-cyan); top: 80%; left: 10%; animation: float4 28s infinite linear alternate-reverse; }
+        .orb-1 { width: 35vw; height: 35vw; background: rgba(176, 38, 255, 0.7); top: -10%; left: -10%; animation: float1 25s infinite linear alternate; }
+        .orb-2 { width: 30vw; height: 30vw; background: rgba(69, 243, 255, 0.7); bottom: 0%; right: -10%; animation: float2 30s infinite linear alternate-reverse; }
+        .orb-3 { width: 25vw; height: 25vw; background: rgba(255, 42, 133, 0.6); top: 30%; left: 70%; animation: float3 22s infinite linear alternate; }
+        .orb-4 { width: 20vw; height: 20vw; background: rgba(0, 250, 154, 0.6); top: 70%; left: 10%; animation: float4 28s infinite linear alternate-reverse; }
 
-        @keyframes float1 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(90vw, 80vh, 0) scale(0.8); } }
-        @keyframes float2 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-80vw, -90vh, 0) scale(1.1); } }
-        @keyframes float3 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-90vw, 40vh, 0) scale(1); } }
-        @keyframes float4 { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(30vw, -80vh, 0) scale(1.2); } }
+        @keyframes float1 { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(70vw, 60vh, 0) scale(0.8); } }
+        @keyframes float2 { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-60vw, -70vh, 0) scale(1.1); } }
+        @keyframes float3 { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-70vw, 30vh, 0) scale(1); } }
+        @keyframes float4 { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(20vw, -60vh, 0) scale(1.2); } }
+
+        /* --- PANTALLA MÁGICA DE DESENFOQUE --- */
+        .blur-overlay {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 100vw; 
+            height: 100vh;
+            backdrop-filter: blur(110px); 
+            -webkit-backdrop-filter: blur(110px); 
+            background: rgba(11, 12, 16, 0.2); 
+            z-index: -1; 
+            pointer-events: none; 
+        }
+
+        /* ------------------------------------------------------------------------ */
 
         header {
             margin-top: 50px;
@@ -99,17 +112,21 @@
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            /* Animación exclusiva y súper fluida para el título */
             opacity: 0;
+            
+            /* LA MAGIA DEL FILTRO: Interacciona matemáticamente con la luz del fondo */
+            mix-blend-mode: difference;
+            
+            /* Animación del título ultra fluida */
             animation: titleSmoothIn 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
         }
 
         @keyframes titleSmoothIn {
-            0% { opacity: 0; transform: translateY(-30px); filter: blur(8px); text-shadow: none; }
-            100% { opacity: 1; transform: translateY(0); filter: blur(0); text-shadow: 0 0 20px rgba(176, 38, 255, 0.4); }
+            0% { opacity: 0; transform: translateY(-30px); filter: blur(8px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
 
-        /* ----- BARRA DE BÚSQUEDA CORREGIDA (Cierre sin achicarse) ----- */
+        /* ----- BARRA DE BÚSQUEDA ----- */
         .search-wrapper {
             position: relative;
             margin: 0 auto;
@@ -124,8 +141,6 @@
             -webkit-backdrop-filter: blur(12px);
             overflow: hidden;
             box-shadow: 0 0 15px rgba(69, 243, 255, 0.1);
-            
-            /* Animación suave para cuando se CIERRA (Evita que el círculo se hunda) */
             transition: width 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
@@ -134,8 +149,6 @@
             max-width: 90vw;
             border-color: var(--neon-blue);
             box-shadow: 0 0 25px rgba(69, 243, 255, 0.3);
-            
-            /* Animación con rebote elástico solo para cuando se ABRE */
             transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
@@ -231,12 +244,13 @@
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s, background-color 0.4s;
             opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s forwards;
+            transform: translate3d(0, 40px, 0); 
+            animation: cardUp 0.6s forwards;
             position: relative;
             overflow: hidden;
+            will-change: transform, opacity;
         }
 
         .repo-card::before {
@@ -249,9 +263,10 @@
         }
 
         .repo-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.2);
-            border-color: rgba(176, 38, 255, 0.4);
+            transform: translate3d(0, -8px, 0) scale(1.02);
+            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.25);
+            border-color: rgba(176, 38, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .repo-card:hover::before {
@@ -281,11 +296,19 @@
         @keyframes pulseDot { 0% { opacity: 1; } 100% { opacity: 0.4; } }
 
         .repo-title { font-size: 1.4rem; margin: 0 0 15px 0; }
-        .repo-title a { color: var(--neon-blue); text-decoration: none; transition: color 0.3s; text-shadow: 0 0 8px rgba(69, 243, 255, 0.4); }
-        .repo-title a:hover { color: var(--neon-purple); text-shadow: 0 0 12px rgba(176, 38, 255, 0.6); }
-        .repo-desc { color: #b3b3b3; font-size: 0.95rem; line-height: 1.5; margin-bottom: 10px; }
+        .repo-title a { color: var(--neon-blue); text-decoration: none; transition: color 0.3s; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(69, 243, 255, 0.4); }
+        .repo-title a:hover { color: var(--neon-purple); text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 12px rgba(176, 38, 255, 0.6); }
+        
+        .repo-desc { 
+            color: #e0e0e0; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+            margin-bottom: 10px; 
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
 
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        @keyframes cardUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
         /* Mensajes de Búsqueda */
         .empty-message {
@@ -297,8 +320,8 @@
             animation: fadeInUp 0.5s forwards;
         }
 
-        .empty-message h2 { color: var(--neon-pink); font-size: 1.8rem; text-shadow: 0 0 15px rgba(255, 42, 133, 0.5); margin: 0 0 10px 0; }
-        .empty-message p { color: #aaa; font-size: 1rem; }
+        .empty-message h2 { color: var(--neon-pink); font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(255, 42, 133, 0.5); margin: 0 0 10px 0; }
+        .empty-message p { color: #aaa; font-size: 1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
         .section-title {
             width: 90%;
@@ -313,6 +336,7 @@
             animation: fadeInUp 0.5s forwards;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         /* Spinner de carga */
@@ -342,6 +366,8 @@
     <div class="bg-orb orb-2"></div>
     <div class="bg-orb orb-3"></div>
     <div class="bg-orb orb-4"></div>
+    
+    <div class="blur-overlay"></div>
 
     <header>
         <h1>Proyectos xTFEXx</h1>
@@ -384,14 +410,24 @@
 
         let allReposData = [];
 
+        // LÓGICA DE LA LUPA CORREGIDA
         searchIcon.addEventListener('click', () => {
             searchWrapper.classList.toggle('active');
+            
             if(searchWrapper.classList.contains('active')){
                 searchInput.focus();
             } else {
+                // Al cerrar, verificamos si había texto antes de limpiar
+                const wasEmpty = searchInput.value.trim() === '';
+                
                 searchInput.value = '';
                 searchInput.blur();
-                performSearch();
+                clearBtn.classList.remove('visible');
+                
+                // Solo recarga los proyectos si realmente habías filtrado algo
+                if (!wasEmpty) {
+                    performSearch();
+                }
             }
         });
 
@@ -495,10 +531,8 @@
 
         searchInput.addEventListener('input', performSearch);
 
-        // Fetch API con configuración para evitar caché
         async function fetchRepos() {
             try {
-                // { cache: 'no-store' } fuerza al navegador a traer datos frescos de GitHub
                 const response = await fetch(apiUrl, { cache: 'no-store' });
                 if (!response.ok) throw new Error('Error al cargar la API de GitHub');
                 allReposData = await response.json();
