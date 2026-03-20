@@ -26,17 +26,16 @@
 
         /* Bloqueo estricto del root para que la barra de direcciones de celular NO se oculte */
         html, body {
+            position: fixed; /* CLAVE: Ancla la página y evita que la barra de navegación se colapse */
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw;
+            height: 100dvh; /* Altura dinámica que respeta la interfaz del celular */
+            min-height: 100%;
+            overscroll-behavior: none; /* Evita el rebote (pull-to-refresh) en móviles */
+            
             scrollbar-width: none; 
             -ms-overflow-style: none; 
-            overflow: hidden; /* Esto bloquea el salto de la barra */
-            height: 100%; width: 100%;
-        }
-        
-        html::-webkit-scrollbar, body::-webkit-scrollbar {
-            display: none; 
-        }
-
-        body {
+            overflow: hidden; 
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -51,14 +50,17 @@
             -ms-user-select: none;
             user-select: none;
         }
+        
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none; 
+        }
 
         @keyframes systemBoot {
             0% { opacity: 0; }
             100% { opacity: 1; }
         }
 
-        /* --- NUEVA CÁPSULA DE SCROLL INTERNO --- */
-        /* Todo el contenido se escrolea aquí adentro, manteniendo el fondo intacto */
+        /* --- CÁPSULA DE SCROLL INTERNO --- */
         .main-scroll-wrapper {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -68,13 +70,14 @@
             flex-direction: column;
             align-items: center;
             scrollbar-width: none;
+            overscroll-behavior: none; /* Previene interacciones de scroll con el navegador nativo */
         }
 
         .main-scroll-wrapper::-webkit-scrollbar {
             display: none;
         }
 
-        /* --- NUEVO FONDO: ORBS SÓLIDAS Y BRILLANTES --- */
+        /* --- FONDO: ORBS SÓLIDAS Y BRILLANTES --- */
         #background-wrapper {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -88,9 +91,7 @@
             position: absolute;
             top: 0; left: 0;
             border-radius: 50%;
-            /* Físicas nítidas y brillantes sin usar el costoso blur */
             will-change: transform;
-            /* El truco de la nítidez y el destello */
             filter: drop-shadow(0 0 5px currentColor);
         }
 
@@ -100,7 +101,7 @@
         #orb3 { background-color: rgb(255, 42, 133); color: rgb(255, 120, 180); }
         #orb4 { background-color: rgb(0, 250, 154); color: rgb(100, 255, 200); }
 
-        /* Tinte oscuro que actúa como cristal, sin backdrop-filter: blur */
+        /* Tinte oscuro que actúa como cristal */
         .tint-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -127,7 +128,6 @@
             -webkit-text-fill-color: transparent;
             opacity: 0;
             
-            /* LA MAGIA DEL FILTRO: Interacciona nítidamente con la luz sólida del fondo */
             mix-blend-mode: difference;
             animation: titleSmoothIn 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
         }
@@ -424,7 +424,7 @@
             if (width !== undefined && window.innerWidth === lastWidth && isMobile) return;
             lastWidth = window.innerWidth;
             width = window.innerWidth;
-            height = isMobile ? window.screen.height : window.innerHeight;
+            height = window.innerHeight; // Al usar 100dvh, innerHeight es confiable
             
             orbsData.forEach(orb => {
                 orb.radius = (orb.rMulti * width) / 2;
@@ -441,9 +441,12 @@
         resize();
 
         function updateOrbs() {
+            // Aplicamos fricción al impulso del giroscopio para que vuelva a cero suavemente
+            tiltX *= 0.92;
+            tiltY *= 0.92;
+
             orbsData.forEach(orb => {
-                // Siempre aplicamos su velocidad base (vx, vy) para que floten desde que entras a la página.
-                // Además le sumamos la aceleración del teléfono (tiltX, tiltY).
+                // Se suman la velocidad natural (vx/vy) y el impulso temporal del celular (tiltX/tiltY)
                 orb.x += orb.vx + tiltX;
                 orb.y += orb.vy + tiltY;
 
@@ -461,17 +464,36 @@
         requestAnimationFrame(updateOrbs);
 
         let gyroInitialized = false;
+        let gravityX = 0, gravityY = 0; // Variables para el filtro de gravedad
 
         function handleMotion(event) {
-            if (event.accelerationIncludingGravity) {
-                let ax = event.accelerationIncludingGravity.x || 0;
-                let ay = event.accelerationIncludingGravity.y || 0;
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { ax = -ax; ay = -ay; }
+            let ax = 0, ay = 0;
+
+            // Opción 1: El dispositivo soporta "acceleration" pura, sin gravedad
+            if (event.acceleration && event.acceleration.x !== null) {
+                ax = event.acceleration.x;
+                ay = event.acceleration.y;
+            } 
+            // Opción 2: El dispositivo solo da aceleración con gravedad. Hay que filtrarla.
+            else if (event.accelerationIncludingGravity) {
+                const alpha = 0.8; // Factor de suavizado para aislar la gravedad
+                let rawX = event.accelerationIncludingGravity.x || 0;
+                let rawY = event.accelerationIncludingGravity.y || 0;
                 
-                // Multiplicador más dócil (1.5) para que no salgan disparadas fuera de pantalla
-                tiltX = ax * 1.5; 
-                tiltY = -ay * 1.5; 
+                // Filtro paso bajo: aísla la fuerza de gravedad constante
+                gravityX = alpha * gravityX + (1 - alpha) * rawX;
+                gravityY = alpha * gravityY + (1 - alpha) * rawY;
+                
+                // Filtro paso alto: aísla el movimiento real (quitándole la gravedad)
+                ax = rawX - gravityX;
+                ay = rawY - gravityY;
             }
+
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { ax = -ax; ay = -ay; }
+            
+            // Limitamos la sensibilidad y añadimos el empuje al tilt
+            tiltX += ax * 0.15; 
+            tiltY += -ay * 0.15; 
         }
 
         function initGyro() {
@@ -489,12 +511,8 @@
             }
         }
 
-        // 1. Lo intentamos activar automáticamente de inmediato (funciona en Android)
         initGyro();
-        
-        // 2. Por si estás en un iPhone/iOS 13+, dejamos un respaldo en el primer clic de la pantalla
         document.body.addEventListener('click', initGyro, { once: true });
-
 
         /* ========================================================================= */
         /* 2. LÓGICA DE LA PÁGINA Y GITHUB API                                       */
