@@ -20,10 +20,11 @@
             --neon-purple: #b026ff;
             --neon-pink: #ff2a85;
             --neon-cyan: #00fa9a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.08); /* Ligeramente más opaco para compensar la falta de blur */
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
+        /* Ocultar las barras deslizantes pero permitir scroll */
         html, body {
             scrollbar-width: none; 
             -ms-overflow-style: none; 
@@ -59,25 +60,45 @@
             100% { opacity: 1; }
         }
 
-        /* --- FONDO: CANVAS DE ALTO RENDIMIENTO --- */
-        #bg-canvas {
+        /* --- FONDO OPTIMIZADO PARA GPU --- */
+        #background-wrapper {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            top: 0; left: 0; right: 0; bottom: 0;
             z-index: -2;
+            overflow: hidden;
             pointer-events: none;
+            background: var(--bg-color);
+            /* Fuerza a crear una capa de composición en la GPU */
+            transform: translateZ(0);
         }
 
-        /* --- PANTALLA MÁGICA DE DESENFOQUE --- */
-        .blur-overlay {
+        .orb {
+            position: absolute;
+            top: 0; left: 0;
+            border-radius: 50%;
+            /* Le indica al navegador que optimice este elemento para animación */
+            will-change: transform;
+            /* SE CAMBIÓ: filter por box-shadow. Es infinitamente más rápido para la GPU */
+            box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+            /* Fuerza la aceleración 3D para evitar lag en celulares */
+            backface-visibility: hidden;
+            perspective: 1000;
+            transform: translateZ(0);
+        }
+
+        /* Colores Sólidos con efecto de Luz Neón */
+        #orb1 { background-color: rgb(176, 38, 255); color: rgb(210, 100, 255); }
+        #orb2 { background-color: rgb(69, 243, 255); color: rgb(150, 250, 255); }
+        #orb3 { background-color: rgb(255, 42, 133); color: rgb(255, 120, 180); }
+        #orb4 { background-color: rgb(0, 250, 154); color: rgb(100, 255, 200); }
+
+        .tint-overlay {
             position: fixed;
-            top: -10%; left: -10%; 
-            width: 120%; height: 120%; 
-            backdrop-filter: blur(110px); 
-            -webkit-backdrop-filter: blur(110px); 
-            background: rgba(11, 12, 16, 0.2); 
-            z-index: -1; 
-            pointer-events: none; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 12, 16, 0.3);
+            z-index: -1;
+            pointer-events: none;
+            transform: translateZ(0);
         }
 
         /* ------------------------------------------------------------------------ */
@@ -98,16 +119,20 @@
             -webkit-text-fill-color: transparent;
             opacity: 0;
             
+            /* LA MAGIA DEL FILTRO optimizada en su propia capa GPU */
             mix-blend-mode: difference;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            
             animation: titleSmoothIn 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
         }
 
         @keyframes titleSmoothIn {
-            0% { opacity: 0; transform: translateY(-30px); filter: blur(8px); }
-            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* ----- BARRA DE BÚSQUEDA ----- */
+        /* ----- BARRA DE BÚSQUEDA OPTIMIZADA (Sin backdrop-filter) ----- */
         .search-wrapper {
             position: relative;
             margin: 0 auto;
@@ -118,18 +143,21 @@
             border-radius: 25px;
             display: flex;
             align-items: center;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* SE ELIMINÓ EL BACKDROP-FILTER QUE CAUSABA LAG */
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(69, 243, 255, 0.1);
+            box-shadow: 0 0 15px rgba(69, 243, 255, 0.1), inset 0 0 10px rgba(255, 255, 255, 0.05);
             box-sizing: border-box; 
             transition: width 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            
+            /* Aceleración por hardware */
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .search-wrapper.active {
             width: 300px;
             border-color: var(--neon-blue);
-            box-shadow: 0 0 25px rgba(69, 243, 255, 0.3);
+            box-shadow: 0 0 25px rgba(69, 243, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
             transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
@@ -217,41 +245,47 @@
             padding: 40px 0;
         }
 
+        /* --- TARJETAS OPTIMIZADAS --- */
         .repo-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* SE ELIMINÓ EL BACKDROP-FILTER */
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s, background-color 0.4s;
             opacity: 0;
+            /* Forzar hardware acceleration desde el inicio */
             transform: translate3d(0, 40px, 0); 
             animation: cardUp 0.6s forwards;
             position: relative;
             overflow: hidden;
-            will-change: transform, opacity;
+            /* Indicador para la GPU */
+            will-change: transform, opacity, box-shadow;
+            backface-visibility: hidden;
         }
 
+        /* Borde luminoso optimizado (animamos transform en lugar de left) */
         .repo-card::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
+            top: 0; left: 0;
             width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--neon-blue));
-            transition: left 0.5s;
+            transform: translate3d(-100%, 0, 0);
+            transition: transform 0.5s ease;
+            will-change: transform;
         }
 
         .repo-card:hover {
             transform: translate3d(0, -8px, 0) scale(1.02);
-            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.25);
+            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.1);
             border-color: rgba(176, 38, 255, 0.5);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .repo-card:hover::before {
-            left: 100%;
+            transform: translate3d(100%, 0, 0);
         }
 
         .status-badge {
@@ -287,8 +321,8 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
-        @keyframes fadeInUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
         @keyframes cardUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
         .empty-message {
             text-align: center;
@@ -297,6 +331,7 @@
             padding: 20px 0;
             display: none;
             animation: fadeInUp 0.5s forwards;
+            transform: translateZ(0);
         }
 
         .empty-message h2 { color: var(--neon-pink); font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(255, 42, 133, 0.5); margin: 0 0 10px 0; }
@@ -316,6 +351,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            transform: translateZ(0);
         }
 
         .loader {
@@ -325,6 +361,7 @@
             width: 40px; height: 40px;
             animation: spin 1s linear infinite;
             margin: 50px auto;
+            transform: translateZ(0);
         }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -339,9 +376,13 @@
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
-    
-    <div class="blur-overlay"></div>
+    <div id="background-wrapper">
+        <div class="orb" id="orb1"></div>
+        <div class="orb" id="orb2"></div>
+        <div class="orb" id="orb3"></div>
+        <div class="orb" id="orb4"></div>
+    </div>
+    <div class="tint-overlay"></div>
 
     <header>
         <h1>Proyectos xTFEXx</h1>
@@ -369,86 +410,63 @@
 
     <script>
         /* ========================================================================= */
-        /* 1. MOTOR DE FÍSICAS DEL FONDO (CANVAS) - Teletransporte Invertido         */
+        /* 1. MOTOR DE FÍSICAS DOM (RENDIMIENTO EXTREMO GPU)                         */
         /* ========================================================================= */
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
         let width, height;
-
-        // Variables del acelerómetro
         let tiltX = 0;
         let tiltY = 0;
+        let lastWidth = window.innerWidth;
+        const isMobile = window.innerWidth <= 768;
+
+        const orbsData = [
+            { el: document.getElementById('orb1'), rMulti: isMobile ? 0.65 : 0.35, vx: 0.5, vy: 0.3 },
+            { el: document.getElementById('orb2'), rMulti: isMobile ? 0.55 : 0.30, vx: -0.4, vy: -0.6 },
+            { el: document.getElementById('orb3'), rMulti: isMobile ? 0.50 : 0.25, vx: -0.6, vy: 0.4 },
+            { el: document.getElementById('orb4'), rMulti: isMobile ? 0.45 : 0.20, vx: 0.7, vy: -0.5 }
+        ];
 
         function resize() {
+            if (width !== undefined && window.innerWidth === lastWidth && isMobile) return;
+            lastWidth = window.innerWidth;
             width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
+            height = isMobile ? window.screen.height : window.innerHeight;
+            
+            orbsData.forEach(orb => {
+                orb.radius = (orb.rMulti * width) / 2;
+                orb.el.style.width = `${orb.radius * 2}px`;
+                orb.el.style.height = `${orb.radius * 2}px`;
+                if(orb.x === undefined) {
+                    orb.x = Math.random() * width;
+                    orb.y = Math.random() * height;
+                }
+            });
         }
+
         window.addEventListener('resize', resize);
         resize();
 
-        const isMobile = window.innerWidth <= 768;
-
-        // Definimos las 4 bolas con zonas aleatorias al cargar
-        const orbs = [
-            { color: 'rgba(176, 38, 255, 0.7)', radius: (isMobile ? 65 : 35) * width / 100 / 2, x: Math.random() * width, y: Math.random() * height, vx: 0.5, vy: 0.3 }, // Púrpura
-            { color: 'rgba(69, 243, 255, 0.7)', radius: (isMobile ? 55 : 30) * width / 100 / 2, x: Math.random() * width, y: Math.random() * height, vx: -0.4, vy: -0.6 }, // Azul
-            { color: 'rgba(255, 42, 133, 0.6)', radius: (isMobile ? 50 : 25) * width / 100 / 2, x: Math.random() * width, y: Math.random() * height, vx: -0.6, vy: 0.4 }, // Rosa
-            { color: 'rgba(0, 250, 154, 0.6)', radius: (isMobile ? 45 : 20) * width / 100 / 2, x: Math.random() * width, y: Math.random() * height, vx: 0.7, vy: -0.5 }  // Verde
-        ];
-
-        function drawCircle(x, y, r, color) {
-            ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-        }
-
         function updateOrbs() {
-            ctx.clearRect(0, 0, width, height);
-
-            orbs.forEach(orb => {
-                // Actualizar posición (Movimiento natural + Acelerómetro)
+            orbsData.forEach(orb => {
                 orb.x += orb.vx + tiltX;
                 orb.y += orb.vy + tiltY;
 
-                // Lógica de teletransporte INVERTIDO al salir completamente de la pantalla
-                // Salida Horizontal
-                if (orb.x > width + orb.radius) {
-                    orb.x = -orb.radius;
-                    orb.y = height - orb.y; // Invierte el eje Y
-                } else if (orb.x < -orb.radius) {
-                    orb.x = width + orb.radius;
-                    orb.y = height - orb.y; // Invierte el eje Y
-                }
+                if (orb.x > width + orb.radius) { orb.x = -orb.radius; orb.y = height - orb.y; }
+                else if (orb.x < -orb.radius) { orb.x = width + orb.radius; orb.y = height - orb.y; }
 
-                // Salida Vertical
-                if (orb.y > height + orb.radius) {
-                    orb.y = -orb.radius;
-                    orb.x = width - orb.x; // Invierte el eje X
-                } else if (orb.y < -orb.radius) {
-                    orb.y = height + orb.radius;
-                    orb.x = width - orb.x; // Invierte el eje X
-                }
+                if (orb.y > height + orb.radius) { orb.y = -orb.radius; orb.x = width - orb.x; }
+                else if (orb.y < -orb.radius) { orb.y = height + orb.radius; orb.x = width - orb.x; }
 
-                // Dibujamos solo una vez (ya no necesitamos clones, más rendimiento)
-                drawCircle(orb.x, orb.y, orb.radius, orb.color);
+                orb.el.style.transform = `translate3d(${orb.x - orb.radius}px, ${orb.y - orb.radius}px, 0)`;
             });
-
             requestAnimationFrame(updateOrbs);
         }
-        updateOrbs();
+        requestAnimationFrame(updateOrbs);
 
-        // Escuchar el acelerómetro
         let motionRequested = false;
-        
         function startDeviceMotion() {
             if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission().then(response => {
-                    if (response == 'granted') {
-                        window.addEventListener('devicemotion', handleMotion);
-                    }
+                    if (response == 'granted') window.addEventListener('devicemotion', handleMotion);
                 }).catch(console.error);
             } else {
                 window.addEventListener('devicemotion', handleMotion);
@@ -457,16 +475,16 @@
 
         function handleMotion(event) {
             if (event.accelerationIncludingGravity) {
-                tiltX = (event.accelerationIncludingGravity.x || 0) * -1.5; 
-                tiltY = (event.accelerationIncludingGravity.y || 0) * 1.5;
+                let ax = event.accelerationIncludingGravity.x || 0;
+                let ay = event.accelerationIncludingGravity.y || 0;
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { ax = -ax; ay = -ay; }
+                tiltX = ax * 4; 
+                tiltY = -ay * 4; 
             }
         }
 
         document.body.addEventListener('click', () => {
-            if (!motionRequested) {
-                startDeviceMotion();
-                motionRequested = true;
-            }
+            if (!motionRequested) { startDeviceMotion(); motionRequested = true; }
         }, { once: true });
 
 
@@ -491,19 +509,14 @@
 
         searchIcon.addEventListener('click', () => {
             searchWrapper.classList.toggle('active');
-            
             if(searchWrapper.classList.contains('active')){
                 searchInput.focus();
             } else {
                 const wasEmpty = searchInput.value.trim() === '';
-                
                 searchInput.value = '';
                 searchInput.blur();
                 clearBtn.classList.remove('visible');
-                
-                if (!wasEmpty) {
-                    performSearch();
-                }
+                if (!wasEmpty) performSearch();
             }
         });
 
@@ -552,11 +565,8 @@
         function performSearch() {
             const term = searchInput.value.toLowerCase().trim();
             
-            if (term.length > 0) {
-                clearBtn.classList.add('visible');
-            } else {
-                clearBtn.classList.remove('visible');
-            }
+            if (term.length > 0) clearBtn.classList.add('visible');
+            else clearBtn.classList.remove('visible');
 
             if (term === '') {
                 mainContainer.style.display = 'grid';
@@ -567,10 +577,7 @@
                 return;
             }
 
-            const titleMatches = allReposData.filter(repo => {
-                const title = cleanName(repo.name).toLowerCase();
-                return title.includes(term);
-            });
+            const titleMatches = allReposData.filter(repo => cleanName(repo.name).toLowerCase().includes(term));
 
             if (titleMatches.length > 0) {
                 mainContainer.style.display = 'grid';
@@ -583,10 +590,7 @@
                 emptyMessage.style.display = 'block';
                 fallbackTitle.style.display = 'block';
 
-                const descMatches = allReposData.filter(repo => {
-                    const desc = (repo.description || '').toLowerCase();
-                    return desc.includes(term);
-                });
+                const descMatches = allReposData.filter(repo => (repo.description || '').toLowerCase().includes(term));
 
                 if (descMatches.length > 0) {
                     fallbackTitle.textContent = "Proyectos similares";
