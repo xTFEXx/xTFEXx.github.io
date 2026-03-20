@@ -20,15 +20,16 @@
             --neon-purple: #b026ff;
             --neon-pink: #ff2a85;
             --neon-cyan: #00fa9a;
-            --glass-bg: rgba(255, 255, 255, 0.08); /* Ligeramente más opaco para compensar la falta de blur */
+            --glass-bg: rgba(255, 255, 255, 0.08); 
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        /* Ocultar las barras deslizantes pero permitir scroll */
+        /* Bloqueo estricto del root para que la barra de direcciones de celular NO se oculte */
         html, body {
             scrollbar-width: none; 
             -ms-overflow-style: none; 
-            overflow-x: hidden; 
+            overflow: hidden; /* Esto bloquea el salto de la barra */
+            height: 100%; width: 100%;
         }
         
         html::-webkit-scrollbar, body::-webkit-scrollbar {
@@ -41,10 +42,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             
             animation: systemBoot 1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
             opacity: 0;
@@ -60,7 +57,24 @@
             100% { opacity: 1; }
         }
 
-        /* --- FONDO OPTIMIZADO PARA GPU --- */
+        /* --- NUEVA CÁPSULA DE SCROLL INTERNO --- */
+        /* Todo el contenido se escrolea aquí adentro, manteniendo el fondo intacto */
+        .main-scroll-wrapper {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            scrollbar-width: none;
+        }
+
+        .main-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* --- NUEVO FONDO: ORBS SÓLIDAS Y BRILLANTES --- */
         #background-wrapper {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -68,22 +82,16 @@
             overflow: hidden;
             pointer-events: none;
             background: var(--bg-color);
-            /* Fuerza a crear una capa de composición en la GPU */
-            transform: translateZ(0);
         }
 
         .orb {
             position: absolute;
             top: 0; left: 0;
             border-radius: 50%;
-            /* Le indica al navegador que optimice este elemento para animación */
+            /* Físicas nítidas y brillantes sin usar el costoso blur */
             will-change: transform;
-            /* SE CAMBIÓ: filter por box-shadow. Es infinitamente más rápido para la GPU */
-            box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
-            /* Fuerza la aceleración 3D para evitar lag en celulares */
-            backface-visibility: hidden;
-            perspective: 1000;
-            transform: translateZ(0);
+            /* El truco de la nítidez y el destello */
+            filter: drop-shadow(0 0 5px currentColor);
         }
 
         /* Colores Sólidos con efecto de Luz Neón */
@@ -92,13 +100,13 @@
         #orb3 { background-color: rgb(255, 42, 133); color: rgb(255, 120, 180); }
         #orb4 { background-color: rgb(0, 250, 154); color: rgb(100, 255, 200); }
 
+        /* Tinte oscuro que actúa como cristal, sin backdrop-filter: blur */
         .tint-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(11, 12, 16, 0.3);
             z-index: -1;
             pointer-events: none;
-            transform: translateZ(0);
         }
 
         /* ------------------------------------------------------------------------ */
@@ -119,11 +127,8 @@
             -webkit-text-fill-color: transparent;
             opacity: 0;
             
-            /* LA MAGIA DEL FILTRO optimizada en su propia capa GPU */
+            /* LA MAGIA DEL FILTRO: Interacciona nítidamente con la luz sólida del fondo */
             mix-blend-mode: difference;
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            
             animation: titleSmoothIn 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
         }
 
@@ -132,7 +137,7 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* ----- BARRA DE BÚSQUEDA OPTIMIZADA (Sin backdrop-filter) ----- */
+        /* ----- BARRA DE BÚSQUEDA ----- */
         .search-wrapper {
             position: relative;
             margin: 0 auto;
@@ -143,21 +148,18 @@
             border-radius: 25px;
             display: flex;
             align-items: center;
-            /* SE ELIMINÓ EL BACKDROP-FILTER QUE CAUSABA LAG */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(69, 243, 255, 0.1), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(69, 243, 255, 0.1);
             box-sizing: border-box; 
             transition: width 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-            
-            /* Aceleración por hardware */
-            transform: translateZ(0);
-            backface-visibility: hidden;
         }
 
         .search-wrapper.active {
             width: 300px;
             border-color: var(--neon-blue);
-            box-shadow: 0 0 25px rgba(69, 243, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 25px rgba(69, 243, 255, 0.3);
             transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
@@ -245,47 +247,41 @@
             padding: 40px 0;
         }
 
-        /* --- TARJETAS OPTIMIZADAS --- */
         .repo-card {
             background: var(--glass-bg);
-            /* SE ELIMINÓ EL BACKDROP-FILTER */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s, background-color 0.4s;
             opacity: 0;
-            /* Forzar hardware acceleration desde el inicio */
             transform: translate3d(0, 40px, 0); 
             animation: cardUp 0.6s forwards;
             position: relative;
             overflow: hidden;
-            /* Indicador para la GPU */
-            will-change: transform, opacity, box-shadow;
-            backface-visibility: hidden;
+            will-change: transform, opacity;
         }
 
-        /* Borde luminoso optimizado (animamos transform en lugar de left) */
         .repo-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
+            top: 0; left: -100%;
             width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--neon-blue));
-            transform: translate3d(-100%, 0, 0);
-            transition: transform 0.5s ease;
-            will-change: transform;
+            transition: left 0.5s;
         }
 
         .repo-card:hover {
             transform: translate3d(0, -8px, 0) scale(1.02);
-            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(176, 38, 255, 0.25);
             border-color: rgba(176, 38, 255, 0.5);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .repo-card:hover::before {
-            transform: translate3d(100%, 0, 0);
+            left: 100%;
         }
 
         .status-badge {
@@ -331,7 +327,6 @@
             padding: 20px 0;
             display: none;
             animation: fadeInUp 0.5s forwards;
-            transform: translateZ(0);
         }
 
         .empty-message h2 { color: var(--neon-pink); font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(255, 42, 133, 0.5); margin: 0 0 10px 0; }
@@ -351,7 +346,6 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            transform: translateZ(0);
         }
 
         .loader {
@@ -361,7 +355,6 @@
             width: 40px; height: 40px;
             animation: spin 1s linear infinite;
             margin: 50px auto;
-            transform: translateZ(0);
         }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -384,33 +377,35 @@
     </div>
     <div class="tint-overlay"></div>
 
-    <header>
-        <h1>Proyectos xTFEXx</h1>
-        
-        <div class="search-wrapper" id="search-wrapper">
-            <div class="search-icon" id="search-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                </svg>
+    <div class="main-scroll-wrapper">
+        <header>
+            <h1>Proyectos xTFEXx</h1>
+            
+            <div class="search-wrapper" id="search-wrapper">
+                <div class="search-icon" id="search-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <input type="text" class="search-input" id="search-input" placeholder="Buscar proyecto..." autocomplete="off">
+                <span class="clear-btn" id="clear-btn" title="Borrar">&times;</span>
             </div>
-            <input type="text" class="search-input" id="search-input" placeholder="Buscar proyecto..." autocomplete="off">
-            <span class="clear-btn" id="clear-btn" title="Borrar">&times;</span>
-        </div>
-    </header>
+        </header>
 
-    <div id="loader" class="loader"></div>
-    
-    <div class="container" id="repos-container"></div>
-    <div class="empty-message" id="empty-message">
-        <h2>No se encontraron proyectos</h2>
-        <p>Intenta con otras palabras clave.</p>
+        <div id="loader" class="loader"></div>
+        
+        <div class="container" id="repos-container"></div>
+        <div class="empty-message" id="empty-message">
+            <h2>No se encontraron proyectos</h2>
+            <p>Intenta con otras palabras clave.</p>
+        </div>
+        <h3 class="section-title" id="fallback-title">Proyectos similares</h3>
+        <div class="container" id="fallback-container"></div>
     </div>
-    <h3 class="section-title" id="fallback-title">Proyectos similares</h3>
-    <div class="container" id="fallback-container"></div>
 
     <script>
         /* ========================================================================= */
-        /* 1. MOTOR DE FÍSICAS DOM (RENDIMIENTO EXTREMO GPU)                         */
+        /* 1. MOTOR DE FÍSICAS DOM (RENDIMIENTO EXTREMO A 60FPS)                     */
         /* ========================================================================= */
         let width, height;
         let tiltX = 0;
@@ -447,9 +442,12 @@
 
         function updateOrbs() {
             orbsData.forEach(orb => {
+                // Siempre aplicamos su velocidad base (vx, vy) para que floten desde que entras a la página.
+                // Además le sumamos la aceleración del teléfono (tiltX, tiltY).
                 orb.x += orb.vx + tiltX;
                 orb.y += orb.vy + tiltY;
 
+                // Físicas de teletransporte invertido
                 if (orb.x > width + orb.radius) { orb.x = -orb.radius; orb.y = height - orb.y; }
                 else if (orb.x < -orb.radius) { orb.x = width + orb.radius; orb.y = height - orb.y; }
 
@@ -462,30 +460,40 @@
         }
         requestAnimationFrame(updateOrbs);
 
-        let motionRequested = false;
-        function startDeviceMotion() {
-            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                DeviceMotionEvent.requestPermission().then(response => {
-                    if (response == 'granted') window.addEventListener('devicemotion', handleMotion);
-                }).catch(console.error);
-            } else {
-                window.addEventListener('devicemotion', handleMotion);
-            }
-        }
+        let gyroInitialized = false;
 
         function handleMotion(event) {
             if (event.accelerationIncludingGravity) {
                 let ax = event.accelerationIncludingGravity.x || 0;
                 let ay = event.accelerationIncludingGravity.y || 0;
                 if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { ax = -ax; ay = -ay; }
-                tiltX = ax * 4; 
-                tiltY = -ay * 4; 
+                
+                // Multiplicador más dócil (1.5) para que no salgan disparadas fuera de pantalla
+                tiltX = ax * 1.5; 
+                tiltY = -ay * 1.5; 
             }
         }
 
-        document.body.addEventListener('click', () => {
-            if (!motionRequested) { startDeviceMotion(); motionRequested = true; }
-        }, { once: true });
+        function initGyro() {
+            if (gyroInitialized) return;
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(response => {
+                    if (response == 'granted') {
+                        window.addEventListener('devicemotion', handleMotion);
+                        gyroInitialized = true;
+                    }
+                }).catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+                gyroInitialized = true;
+            }
+        }
+
+        // 1. Lo intentamos activar automáticamente de inmediato (funciona en Android)
+        initGyro();
+        
+        // 2. Por si estás en un iPhone/iOS 13+, dejamos un respaldo en el primer clic de la pantalla
+        document.body.addEventListener('click', initGyro, { once: true });
 
 
         /* ========================================================================= */
